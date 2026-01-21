@@ -6,8 +6,9 @@ def gradient_descent(f, grad_f, x0, alpha=1e-4, tol=1e-6, max_iter=10000):
 
     for k in range(max_iter):
         g = grad_f(x)
-        if np.linalg.norm(g) < tol:
+        if np.linalg.norm(g, 2) < tol:
             break
+        g = g / np.linalg.norm(g, 2)
         x -= alpha * g
         history.append(x.copy())
 

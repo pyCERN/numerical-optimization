@@ -4,6 +4,8 @@ from numerical_optimization.algorithm.line_search.steepest_descent import gradie
 from numerical_optimization.test_functions.test_functions import rosenbrock, grad_rosenbrock
 
 x0 = np.array([-1.2, 1.0])
-x_star, hist = gradient_descent(rosenbrock, grad_rosenbrock, x0)
+x_star, hist = gradient_descent(
+    rosenbrock, grad_rosenbrock, x0, alpha=1e-3, tol=1e-6, max_iter=10000
+)
 print(x_star)
 print(hist)
