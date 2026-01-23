@@ -1,6 +1,6 @@
 import numpy as np
 
-def steepest_descent(f, grad_f, x0, alpha=1e-4, tol=1e-6, max_iter=10000):
+def newton(f, grad_f, hess_f, x0, alpha=1e-4, tol=1e-6, max_iter=10000):
     x = x0.copy()
     history = [x.copy()]
 
@@ -8,8 +8,8 @@ def steepest_descent(f, grad_f, x0, alpha=1e-4, tol=1e-6, max_iter=10000):
         g = grad_f(x)
         if np.linalg.norm(g) < tol:
             break
-        g = g / np.linalg.norm(g)
-        x -= alpha * g
+        hess = hess_f(x)
+        x -= alpha * np.linalg.solve(hess, g)
         history.append(x.copy())
 
     return x, np.array(history)
