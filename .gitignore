@@ -1,7 +1,12 @@
 __pycache__/
 *.pyc
+*.dat
+*.csv
+*.exe
+*.o
 .env
 .venv/
 .idea/
 .vscode/
+libs/eigen-*/
 .DS_Store
