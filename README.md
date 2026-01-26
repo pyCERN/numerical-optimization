@@ -7,5 +7,13 @@ following *Numerical Optimization* by Nocedal & Wright.
 - Steepest descent with line search
 - Test functions
 
-## Usage
-python -m numerical_optimization.experiments.run_steepest_descent
+## Dependencies
+This project uses Eigen (header-only).
+
+### Install Eigen
+1. Download Eigen 3.4.x from https://libeigen.gitlab.io
+2. Extract to:
+   numerical_optimization/libs/eigen-5.0.0
+
+### Build
+make
