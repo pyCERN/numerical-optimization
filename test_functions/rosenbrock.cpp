@@ -1,7 +1,7 @@
 #include "rosenbrock.h"
 #include <cmath>
 
-namespace test_function {
+namespace numerical_optimization::test_function {
 
 Rosenbrock::Rosenbrock(double a, double b) : a_(a), b_(b)
 {}
@@ -19,7 +19,7 @@ Eigen::VectorXd Rosenbrock::gradient(const Eigen::VectorXd& x) const {
 
 Eigen::MatrixXd Rosenbrock::hessian(const Eigen::VectorXd& x) const {
     Eigen::MatrixXd h(2, 2);
-    h(0, 0) = 2 - 4*b_*x(1) + 12*b_ * std::pow(x(1), 2);
+    h(0, 0) = 2 - 4*b_*x(1) + 12*b_ * std::pow(x(0), 2);
     h(0, 1) = -4*b_*x(0);
     h(1, 0) = -4*b_*x(0);
     h(1, 1) = 2*b_;

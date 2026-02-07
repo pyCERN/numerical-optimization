@@ -1,6 +1,6 @@
 #include "test_function_base.h"
 
-namespace test_function {
+namespace numerical_optimization::test_function {
 
 class Rosenbrock : public TestFunction {
 public:

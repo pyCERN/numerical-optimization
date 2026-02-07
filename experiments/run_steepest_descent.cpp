@@ -1,20 +1,22 @@
-#include "../algorithm/line_search/steepest_descent.h"
+#include "../algorithm/optimizer/steepest_descent.h"
 #include "../test_functions/rosenbrock.h"
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
 
+using namespace numerical_optimization;
+
 int main(void) {
-    test_function::Rosenbrock f { 1.0, 100.0 };
-    optimizer::SteepestDescent opt { 1e-3, 1e-6, 10000 };
+    test_function::Rosenbrock f(1.0, 100.0);
+    optimizer::SteepestDescent opt(1e-3, 1e-6, 10000);
 
     Eigen::VectorXd x0(2);
     x0 << -1.2, 1.0;
 
     opt.optimize(x0, f);
 
-    std::ofstream fs { "experiments/history.csv" };
-    std::vector<Eigen::VectorXd> history { opt.history() };
+    std::ofstream fs("experiments/history.csv");
+    std::vector<Eigen::VectorXd> history = opt.result().history();
     for (size_t iter = 0; iter < history.size(); iter++) {
         fs << history[iter][0] << " " << history[iter][1] << "\n";
     }
