@@ -1,6 +1,9 @@
+#ifndef TEST_FUNCTION_BASE_H
+#define TEST_FUNCTION_BASE_H
+
 #include <Eigen/Dense>
 
-namespace test_function {
+namespace numerical_optimization::test_function {
 
 class TestFunction {
 public:
@@ -12,3 +15,5 @@ public:
 };
 
 }
+
+#endif

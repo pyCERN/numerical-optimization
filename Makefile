@@ -11,8 +11,9 @@ EIGEN_DIR := $(ROOT)/libs/eigen-5.0.0
 
 # ===== Source files =====
 ALG_SRC := \
-	$(ALG_DIR)/line_search/steepest_descent.cpp \
-	$(ALG_DIR)/line_search/newton.cpp
+	$(ALG_DIR)/optimizer/steepest_descent.cpp \
+	$(ALG_DIR)/optimizer/newton.cpp \
+	$(ALG_DIR)/step_size/wolfe_search.cpp
 
 TF_SRC := \
 	$(TF_DIR)/rosenbrock.cpp
