@@ -6,8 +6,11 @@
 
 namespace numerical_optimization::optimizer {
 
-Newton::Newton(double stepSize, double tol, int maxIter)
-    : stepSize_(stepSize), tol_(tol), maxIter_(maxIter)
+Newton::Newton(
+    std::unique_ptr<step_size::StepSizeStrategy> strategy,
+    double stepSize, double tol, int maxIter
+) : LineSearchOptimizer(std::move(strategy)),
+    stepSize_(stepSize), tol_(tol), maxIter_(maxIter)
 {}
 
 void Newton::optimize(
@@ -23,8 +26,8 @@ void Newton::optimize(
 
         Eigen::MatrixXd hess = f.hessian(x);
         Eigen::VectorXd p = -hess.ldlt().solve(g);
-        step_size::WolfeSearch stepSizeFinder(x, p, f, 1e-4, 0.9, 10000, 10000, 10.0, 2.0);
-        double stepSize = stepSizeFinder.findStepSize();
+        // step_size::WolfeSearch stepSizeFinder(1e-4, 0.9, 10000, 10000, 10.0, 2.0);
+        double stepSize = strategy_->findStepSize(x, p, f);
         if (stepSize <= 0.0) break;
 
         x += stepSize * p;

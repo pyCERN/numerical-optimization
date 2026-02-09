@@ -2,7 +2,12 @@
 #define OPTIMIZER_BASE_H
 
 #include <Eigen/Dense>
+#include <memory>
 #include <vector>
+
+namespace numerical_optimization::step_size {
+    class StepSizeStrategy;
+}
 
 namespace numerical_optimization::test_function {
     class TestFunction;
@@ -30,6 +35,10 @@ class LineSearchOptimizer {
 public:
     virtual ~LineSearchOptimizer() = default;
 
+    LineSearchOptimizer(std::unique_ptr<step_size::StepSizeStrategy> strategy)
+        : strategy_(std::move(strategy))
+    {}
+
     virtual void optimize(
         const Eigen::VectorXd& x0,
         const test_function::TestFunction& f
@@ -39,6 +48,7 @@ public:
 
 protected:
     OptimizationResult result_;
+    std::unique_ptr<step_size::StepSizeStrategy> strategy_;
 };
 
 }

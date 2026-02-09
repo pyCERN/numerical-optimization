@@ -5,31 +5,39 @@
 namespace numerical_optimization::step_size {
 
 WolfeSearch::WolfeSearch(
-    const Eigen::VectorXd& x, const Eigen::VectorXd& p,
-    const test_function::TestFunction& f,
     double c1, double c2,
     int maxIter, int maxIterZoom,
     double stepSizeMax,
     double sizeExpansionFactor
-) : StepSizeStrategy(x, p, f),
-    c1_(c1), c2_(c2),
+) : c1_(c1), c2_(c2),
     maxIter_(maxIter), maxIterZoom_(maxIterZoom),
     stepSizeMax_(stepSizeMax),
     sizeExpansionFactor_(sizeExpansionFactor)
 {}
 
-double WolfeSearch::phi(double stepSize) const {
-    return f_.value(x_ + stepSize*p_);
+double WolfeSearch::phi(
+    double stepSize,
+    const Eigen::VectorXd& x, const Eigen::VectorXd& p,
+    const test_function::TestFunction& f
+) const {
+    return f.value(x + stepSize*p);
 }
 
-double WolfeSearch::g_phi(double stepSize) const {
-    return f_.gradient(x_ + stepSize*p_).dot(p_);
+double WolfeSearch::g_phi(
+    double stepSize,
+    const Eigen::VectorXd& x, const Eigen::VectorXd& p,
+    const test_function::TestFunction& f
+) const {
+    return f.gradient(x + stepSize*p).dot(p);
 }
 
-double WolfeSearch::findStepSize() const {
+double WolfeSearch::findStepSize(
+    const Eigen::VectorXd& x, const Eigen::VectorXd& p,
+    const test_function::TestFunction& f
+) const {
     // Here we assume that g_phi(0) is negative to make sure that the algorithm is toward decreasing direction.
-    double phi0 = phi(0.0);
-    double g_phi0 = g_phi(0.0);
+    double phi0 = phi(0.0, x, p, f);
+    double g_phi0 = g_phi(0.0, x, p, f);
     if (g_phi0 >= 0) {
         return 0.0;
     }
@@ -39,13 +47,13 @@ double WolfeSearch::findStepSize() const {
     double solution = stepSize;
     
     for (int i = 0; i < maxIter_; i++) {
-        double phiCur = phi(stepSize);
-        double g_phiCur = g_phi(stepSize);
+        double phiCur = phi(stepSize, x, p, f);
+        double g_phiCur = g_phi(stepSize, x, p, f);
         if (phiCur > phi0 + c1_*stepSize*g_phi0 ||
-            (i > 1 && phi(stepSize) >= phi(stepSizePrev))) {
+            (i > 1 && phi(stepSize, x, p, f) >= phi(stepSizePrev, x, p, f))) {
             // Armijo condition violation.
             // Nailed down to the range where the solution is included.
-            solution = zoom(stepSizePrev, stepSize);
+            solution = zoom(stepSizePrev, stepSize, x, p, f);
             break;
         }
         if (std::abs(g_phiCur) <= -c2_*g_phi0) {
@@ -58,7 +66,7 @@ double WolfeSearch::findStepSize() const {
             // The sign of the gradient is changed and now the search is toward increasing direction.
             // So no need to go further in this direction.
             // Because of the first if condition, phi(stepSizePrev) > phi(stepSize)
-            solution = zoom(stepSize, stepSizePrev);
+            solution = zoom(stepSize, stepSizePrev, x, p, f);
             break;
         }
 
@@ -70,9 +78,13 @@ double WolfeSearch::findStepSize() const {
     return solution;
 }
 
-double WolfeSearch::interpolate(double stepSizeLow, double stepSizeHigh) const {
-    double g_phiLow = g_phi(stepSizeLow);
-    double denom = 2 * (phi(stepSizeHigh) - phi(stepSizeLow) - g_phiLow * (stepSizeHigh - stepSizeLow));
+double WolfeSearch::interpolate(
+    double stepSizeLow, double stepSizeHigh,
+    const Eigen::VectorXd& x, const Eigen::VectorXd& p,
+    const test_function::TestFunction& f
+) const {
+    double g_phiLow = g_phi(stepSizeLow, x, p, f);
+    double denom = 2 * (phi(stepSizeHigh, x, p, f) - phi(stepSizeLow, x, p, f) - g_phiLow * (stepSizeHigh - stepSizeLow));
     if (denom <= 0.0) {
         return (stepSizeLow + stepSizeHigh) / 2.0;
     }
@@ -86,20 +98,24 @@ double WolfeSearch::interpolate(double stepSizeLow, double stepSizeHigh) const {
     return newStepSize;
 }
 
-double WolfeSearch::zoom(double stepSizeLow, double stepSizeHigh) const {
-    double phi0 = phi(0.0);
-    double g_phi0 = f_.gradient(x_).transpose() * p_;
+double WolfeSearch::zoom(
+    double stepSizeLow, double stepSizeHigh,
+    const Eigen::VectorXd& x, const Eigen::VectorXd& p,
+    const test_function::TestFunction& f
+) const {
+    double phi0 = phi(0.0, x, p, f);
+    double g_phi0 = f.gradient(x).transpose() * p;
     double solution {};
     for (int i = 0; i < maxIterZoom_; i++) {
-        double stepSize = interpolate(stepSizeLow, stepSizeHigh);
-        double phiCur = phi(stepSize);
-        if (phiCur > phi0 + c1_*stepSize*g_phi0 || phi(stepSize) >= phi(stepSizeLow)) {
+        double stepSize = interpolate(stepSizeLow, stepSizeHigh, x, p, f);
+        double phiCur = phi(stepSize, x, p, f);
+        if (phiCur > phi0 + c1_*stepSize*g_phi0 || phi(stepSize, x, p, f) >= phi(stepSizeLow, x, p, f)) {
             // Armijo condition violation. Same as above Wolfe search.
             // No need to go further this step size, so stepSizeHigh is set to this value.
             stepSizeHigh = stepSize;
         }
         else {
-            double g_phiCur = f_.gradient(x_ + stepSize*p_).transpose() * p_;
+            double g_phiCur = f.gradient(x + stepSize*p).transpose() * p;
             if (std::abs(g_phiCur) <= -c2_*g_phi0) {
                 // Curvature condition satisfied.
                 solution = stepSize;
