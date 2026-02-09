@@ -22,7 +22,7 @@ void SteepestDescent::optimize(
         if (g.norm() < tol_) break;
 
         Eigen::VectorXd p = -g;
-        x += stepSize * p;
+        x += stepSize_ * p;
         result_.addHistory(x);
     }
 

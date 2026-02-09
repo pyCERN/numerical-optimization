@@ -13,6 +13,8 @@ EIGEN_DIR := $(ROOT)/libs/eigen-5.0.0
 ALG_SRC := \
 	$(ALG_DIR)/optimizer/steepest_descent.cpp \
 	$(ALG_DIR)/optimizer/newton.cpp \
+	$(ALG_DIR)/step_size/backtrack_search.cpp \
+	$(ALG_DIR)/step_size/fixed_step_size.cpp \
 	$(ALG_DIR)/step_size/wolfe_search.cpp
 
 TF_SRC := \

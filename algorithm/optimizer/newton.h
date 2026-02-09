@@ -7,7 +7,10 @@ namespace numerical_optimization::optimizer {
 
 class Newton : public LineSearchOptimizer {
 public:
-    Newton(double stepSize=1e-4, double tol=1e-6, int maxIter=10000);
+    Newton(
+        std::unique_ptr<step_size::StepSizeStrategy> strategy,
+        double stepSize, double tol, int maxIter
+    );
 
     void optimize(
         const Eigen::VectorXd& x0,
